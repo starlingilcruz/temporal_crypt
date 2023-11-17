@@ -1,11 +1,7 @@
-const { generateKeyPair, signMessage } = require('./activities');
+const { signMessage } = require('./activities');
 
-async function signingWorkflow(message) {
-  if (!keyPair) {
-    // generate keyPair is not provisioned
-    generateKeyPair();
-  }
-  return await signMessage(message);
+async function signingWorkflow(message, privateKey) {
+  return await signMessage(message, privateKey);
 }
 
 module.exports = { signingWorkflow };

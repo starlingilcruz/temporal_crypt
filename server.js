@@ -1,7 +1,7 @@
 const express = require('express');
 const { Connection, WorkflowClient } = require('@temporalio/client');
 const { signingWorkflow } = require('./workflows');
-const { generateKeyPair } = require('./activities');
+const { generateKeyPair } = require('./utils');
 
 const app = express();
 app.use(express.json());
@@ -9,12 +9,14 @@ app.use(express.json());
 const connection = new Connection({});
 const client = new WorkflowClient(connection.service);
 
+let keyPair;
+
 // a2689cf5-9f35-44bf-8896-2b0b1eb15c4d
 app.post('/sign-message', async (req, res) => {
   const { id, message } = req.body;
 
   await client.start(signingWorkflow, {
-    args: [message],
+    args: [message, keyPair.privateKey],
     workflowId: id,
     taskQueue: 'signing-task-queue',
   });
@@ -34,6 +36,6 @@ app.get('/check-status/:id', async (req, res) => {
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  generateKeyPair()
+  keyPair = generateKeyPair();
   console.log(`Server running on http://localhost:${PORT}`);
 });
